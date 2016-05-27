@@ -407,7 +407,7 @@ static RE2::Anchor _php_re2_get_anchor_from_flags(int flags)
 		add_next_index_stringl(piece, match, len, 1); \
 		add_next_index_long(piece, ptr == NULL ? -1 : offset); \
 	} else { \
-		ZVAL_STRINGL(piece, (char *)match, len, 1); \
+		ZVAL_STRINGL(piece, (char *)match, len); \
 	} \
 	if (match) { \
 		efree(match); \
@@ -757,7 +757,7 @@ static int _php_re2_replace_subject(zval **patterns, zval *subject, zval *return
 			*count += num_matches;
 			zval_ptr_dtor(&subject);
 			MAKE_STD_ZVAL(subject);
-			ZVAL_STRINGL(subject, (char *)out_str.c_str(), out_str.length(), 1);
+			ZVAL_STRINGL(subject, (char *)out_str.c_str(), out_str.length());
 		}
 
 		RE2_FREE_PATTERN;
@@ -774,7 +774,7 @@ static int _php_re2_replace_subject(zval **patterns, zval *subject, zval *return
 	RE2_FREE_ARRAY(replace);
 
 	Z_TYPE_P(return_value) = IS_STRING;
-	ZVAL_STRINGL(return_value, (char *)Z_STRVAL_P(subject), Z_STRLEN_P(subject), 1);
+	ZVAL_STRINGL(return_value, (char *)Z_STRVAL_P(subject), Z_STRLEN_P(subject));
 	zval_ptr_dtor(&subject);
 
 	return SUCCESS;
