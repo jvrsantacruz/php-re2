@@ -6,7 +6,8 @@ PHP_ARG_WITH(re2, for re2 support,
 if test "$PHP_RE2" != "no"; then
   SEARCH_PATH="$PHP_RE2 /usr/local /usr"
   SEARCH_INC="include/re2/re2.h"
-  SEARCH_LIB="lib/libre2.so"
+  SEARCH_ARCH="x86_64-linux-gnu"
+  SEARCH_LIB="lib/$SEARCH_ARCH/libre2.so"
   AC_MSG_CHECKING([for re2 files])
   for i in $SEARCH_PATH ; do
     if test -r $i/$SEARCH_INC && test -r $i/$SEARCH_LIB; then
