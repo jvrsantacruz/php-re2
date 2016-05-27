@@ -203,7 +203,7 @@ struct re2_set_object {
 void re2_free_storage(void *object TSRMLS_DC)
 {
 	re2_object *obj = (re2_object *)object;
-	
+
 	if (!obj->cached) {
 		delete obj->re;
 	}
@@ -260,7 +260,7 @@ zend_object_value re2_object_clone(zval *this_ptr TSRMLS_DC)
 	new_obj->re = new RE2(old_obj->re->pattern(), *options_obj->options);
 	Z_DELREF_P(options);
 	*/
-	
+
 	return retval;
 }
 
@@ -324,7 +324,7 @@ zend_object_value re2_options_object_clone(zval *this_ptr TSRMLS_DC)
 	new_obj->options->set_perl_classes(old_obj->options->perl_classes());
 	new_obj->options->set_word_boundary(old_obj->options->word_boundary());
 	new_obj->options->set_one_line(old_obj->options->one_line());
-	
+
 	return retval;
 }
 
@@ -627,7 +627,7 @@ static long _php_re2_match_common(RE2 *re, zval **matches, zval *matches_out,
 			add_next_index_zval(out_array, piece);
 		}
 	}
-	
+
 	return num_matches;
 }
 /*	}}} */
@@ -820,7 +820,7 @@ static void _php_re2_replace_subjects(zval **patterns, zval *subjects, zval *ret
 				}
 			}
 			zval_ptr_dtor(&subject_return);
-	
+
 			subject_return = NULL;
 			zend_hash_move_forward(Z_ARRVAL_P(subjects));
 		}
@@ -873,7 +873,7 @@ static char *re2_options_hash(zval *options TSRMLS_DC)
 	re2_options_object *obj = (re2_options_object *)zend_object_store_get_object(options TSRMLS_CC);
 
 	spprintf(&hash, RE2_OPTIONS_HASH_LEN, "%c%c%x",
-		1 | 
+		1 |
 		obj->options->posix_syntax()	<< 1 |
 		obj->options->longest_match()	<< 2 |
 		obj->options->log_errors()		<< 3 |
@@ -903,7 +903,7 @@ static char *re2_options_hash(zval *options TSRMLS_DC)
 		zval_add_ref(&options); \
 		zval_ptr_dtor(&options); \
 		RETURN_NULL(); \
-	} 
+	}
 
 /*	}}} */
 
@@ -951,7 +951,7 @@ PHP_FUNCTION(re2_match)
 	} else {
 		RETVAL_LONG(re->Match(subject_piece, offset, subject_piece.size(), anchor, NULL, 0));
 	}
-	
+
 	RE2_FREE_PATTERN;
 }
 /*	}}} */
@@ -1021,7 +1021,7 @@ PHP_FUNCTION(re2_match_all)
 	if (flags & RE2_PATTERN_ORDER) {
 		efree(matches);
 	}
-	
+
 	RE2_FREE_PATTERN;
 }
 /*	}}} */
@@ -1138,7 +1138,7 @@ PHP_FUNCTION(re2_grep)
 		zend_hash_move_forward(Z_ARRVAL_P(input));
 	}
 	zend_hash_internal_pointer_reset(Z_ARRVAL_P(input));
-	
+
 	RE2_FREE_PATTERN;
 }
 /*	}}} */
@@ -1475,7 +1475,7 @@ PHP_METHOD(Re2Set, __construct)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|Ol", &options, php_re2_options_class_entry, &flags) == FAILURE) {
 		RETURN_NULL();
 	}
-		
+
 	if (ZEND_NUM_ARGS() == 0) {
 		PHP_RE2_CREATE_OPTIONS_OBJECT
 	}
@@ -1570,16 +1570,16 @@ PHP_METHOD(Re2Set, match)
 	}
 	array_init(matching_indexs_out);
 	std::vector<int> v;
-		
+
 	re2_set_object *obj = (re2_set_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
 	bool found = obj->re2_set->Match(subject, &v);
-		
+
 	if(v.size()) {
 		for( std::vector<int>::iterator it=v.begin(); it!=v.end(); ++it ) {
 			add_next_index_long(matching_indexs_out, *it);
 		}
 	}
-	
+
 	RETURN_BOOL(found);
 }
 /*	}}} */
@@ -1672,12 +1672,12 @@ PHP_MINIT_FUNCTION(re2)
 	INIT_CLASS_ENTRY(ce, PHP_RE2_INVALID_PATTERN_EXCEPTION_CLASS_NAME, NULL);
 	php_re2_invalid_pattern_exception_class_entry = zend_register_internal_class_ex(&ce, zend_exception_get_default(TSRMLS_C), NULL TSRMLS_CC);
 	php_re2_invalid_pattern_exception_class_entry->ce_flags |= ZEND_ACC_FINAL;
-		
+
 	/* register RE2_InternalErrorException */
 	INIT_CLASS_ENTRY(ce, PHP_RE2_INTERNAL_ERROR_EXCEPTION_CLASS_NAME, NULL);
 	php_re2_internal_error_exception_class_entry = zend_register_internal_class_ex(&ce, zend_exception_get_default(TSRMLS_C), NULL TSRMLS_CC);
 	php_re2_internal_error_exception_class_entry->ce_flags |= ZEND_ACC_FINAL;
-		
+
 	/* register constants */
 	REGISTER_LONG_CONSTANT("RE2_ANCHOR_NONE", RE2_ANCHOR_NONE, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("RE2_ANCHOR_START", RE2_ANCHOR_START, CONST_CS | CONST_PERSISTENT);
