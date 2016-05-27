@@ -703,7 +703,7 @@ static int _php_re2_get_pattern(zval *pattern, RE2 **re, int *argc, bool *was_ne
 	}
 
 	if (cache_save) {
-		zend_hash_update(RE2_G(cache_store), Z_STRVAL_P(pattern), Z_STRLEN_P(pattern) + 1, (void *)re, sizeof(RE2 *), NULL);
+		zend_hash_update(RE2_G(cache_store), Z_STR_P(pattern), re);
 	}
 
 	return SUCCESS;
@@ -1123,7 +1123,7 @@ PHP_FUNCTION(re2_grep)
 
 			switch (zend_hash_get_current_key(Z_ARRVAL_P(input), &string_key, &num_key, 0)) {
 				case HASH_KEY_IS_STRING:
-					zend_hash_update(Z_ARRVAL_P(return_value), string_key, strlen(string_key) + 1, entry, sizeof(zval *), NULL);
+					zend_hash_update(Z_ARRVAL_P(return_value), string_key, entry);
 					break;
 				case HASH_KEY_IS_LONG:
 					zend_hash_index_update(Z_ARRVAL_P(return_value), num_key, entry, sizeof(zval *), NULL);
@@ -1255,7 +1255,7 @@ PHP_METHOD(RE2, __construct)
 	obj->cached = cache_hit || cache_save;
 
 	if (cache_save) {
-		zend_hash_update(RE2_G(cache_store), cache_key, cache_key_len, (void *)&re2_obj, sizeof(RE2 *), NULL);
+		zend_hash_update(RE2_G(cache_store), cache_key, &re2_obj);
 	}
 
 	if (cache_key) {
