@@ -1160,7 +1160,7 @@ PHP_FUNCTION(re2_quote)
 
 	subject_str = std::string(subject, subject_len);
 	out_str = RE2::QuoteMeta(subject_str);
-	RETVAL_STRINGL((char *)out_str.c_str(), out_str.length(), 1);
+	RETVAL_STRINGL((char *)out_str.c_str(), out_str.length());
 }
 /*	}}} */
 
@@ -1283,7 +1283,7 @@ PHP_METHOD(Re2Options, getEncoding)
 
 	re2_options_object *obj = (re2_options_object *)Z_OBJ_P(getThis());
 	encoding = (char *)(obj->options->encoding() == RE2::Options::EncodingUTF8 ? "utf8" : "latin1");
-	RETURN_STRING(encoding, 1);
+	RETURN_STRING(encoding);
 }
 /*	}}} */
 
