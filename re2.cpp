@@ -207,8 +207,6 @@ void re2_free_storage(void *object TSRMLS_DC)
 	if (!obj->cached) {
 		delete obj->re;
 	}
-
-	zend_objects_free_object_storage((zend_object *)object TSRMLS_CC);
 }
 
 zend_object_value re2_object_new_ex(zend_class_entry *type, re2_object **ptr TSRMLS_DC)
@@ -268,8 +266,6 @@ void re2_options_free_storage(void *object TSRMLS_DC)
 {
 	re2_options_object *obj = (re2_options_object *)object;
 	delete obj->options;
-
-	zend_objects_free_object_storage((zend_object *)object TSRMLS_CC);
 }
 
 zend_object_value re2_options_object_new_ex(zend_class_entry *type, re2_options_object **ptr TSRMLS_DC)
@@ -332,8 +328,6 @@ void re2_set_free_storage(void *object TSRMLS_DC)
 {
 	re2_set_object *obj = (re2_set_object *)object;
 	delete obj->re2_set;
-
-	zend_objects_free_object_storage((zend_object *)object TSRMLS_CC);
 }
 
 zend_object_value re2_set_object_new_ex(zend_class_entry *type, re2_set_object **ptr TSRMLS_DC)
