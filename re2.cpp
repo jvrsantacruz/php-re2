@@ -705,7 +705,8 @@ static int _php_re2_replace_subject(zval **patterns, zval *subject, zval *return
 	Z_ADDREF_P(subject);
 	SEPARATE_ZVAL(&subject);
 
-	while (zend_hash_get_current_data(Z_ARRVAL_P(pattern_array), (void **)&pattern_ptr) == SUCCESS) {
+	
+	while ((pattern_ptr = zend_hash_get_current_data(Z_ARRVAL_P(pattern_array))) != NULL) {
 		if (_php_re2_get_pattern(*pattern_ptr, &re, &argc, &was_new TSRMLS_CC) == FAILURE) {
 			RE2_FREE_PATTERN;
 			RE2_FREE_ARRAY(pattern);
@@ -715,7 +716,7 @@ static int _php_re2_replace_subject(zval **patterns, zval *subject, zval *return
 			return FAILURE;
 		}
 
-		if (replace_fci || zend_hash_get_current_data(Z_ARRVAL_P(replace_array), (void **)&replace_ptr) == FAILURE) {
+		if (replace_fci || (replace_ptr = zend_hash_get_current_data(Z_ARRVAL_P(replace_array))) == NULL) {
 			replace_str = "";
 			replace_len = 0;
 		} else {
@@ -766,7 +767,7 @@ static void _php_re2_replace_subjects(zval **patterns, zval *subjects, zval *ret
 	if (Z_TYPE_P(subjects) == IS_ARRAY) {
 		array_init(return_value);
 		zend_hash_internal_pointer_reset(Z_ARRVAL_P(subjects));
-		while (zend_hash_get_current_data(Z_ARRVAL_P(subjects), (void **)&subject_ptr) == SUCCESS) {
+		while ((subject_ptr = zend_hash_get_current_data(Z_ARRVAL_P(subjects))) != NULL) {
 			MAKE_STD_ZVAL(subject_return);
 			count = 0;
 			if (_php_re2_replace_subject(patterns, *subject_ptr, subject_return, &count, limit, flags, is_filter, replaces, replace_fci, replace_fci_cache TSRMLS_CC) == FAILURE) {
@@ -1081,7 +1082,7 @@ PHP_FUNCTION(re2_grep)
 
 	array_init(return_value);
 	zend_hash_internal_pointer_reset(Z_ARRVAL_P(input));
-	while (zend_hash_get_current_data(Z_ARRVAL_P(input), (void **)&entry) == SUCCESS) {
+	while ((entry = zend_hash_get_current_data(Z_ARRVAL_P(input)) != NULL) {
 		zval subject = **entry;
 
 		if (Z_TYPE_PP(entry) != IS_STRING) {
