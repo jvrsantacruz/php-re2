@@ -285,14 +285,14 @@ zend_object * re2_options_object_new(zend_class_entry *type TSRMLS_DC)
 	return re2_options_object_new_ex(type, NULL TSRMLS_CC);
 }
 
-zend_object_value re2_options_object_clone(zval *this_ptr TSRMLS_DC)
+zend_object * re2_options_object_clone(zval *this_ptr TSRMLS_DC)
 {
 	RE2::Options *options = NULL;
 	re2_options_object *new_obj = NULL;
-	re2_options_object *old_obj = (re2_options_object *)zend_object_store_get_object(this_ptr TSRMLS_CC);
-	zend_object_value retval = re2_options_object_new_ex(old_obj->std.ce, &new_obj TSRMLS_CC);
+	re2_options_object *old_obj = (re2_options_object *)Z_OBJ_P(this_ptr);
+	zend_object * retval = re2_options_object_new_ex(old_obj->std.ce, &new_obj TSRMLS_CC);
 
-	zend_objects_clone_members(&new_obj->std, retval, &old_obj->std, Z_OBJ_HANDLE_P(this_ptr) TSRMLS_CC);
+	zend_objects_clone_members(&new_obj->std, &old_obj->std);
 	new_obj->options = new RE2::Options();
 
 	/* grrr.. why is Copy() private? */
