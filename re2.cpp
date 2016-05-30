@@ -658,7 +658,7 @@ static int _php_re2_get_pattern(zval *pattern, RE2 **re, int *argc, bool *was_ne
 			*was_new = !cache_save;
 		}
 	} else if (Z_TYPE_P(pattern) == IS_OBJECT && instanceof_function(Z_OBJCE_P(pattern), php_re2_class_entry TSRMLS_CC)) {
-		re2_object *obj = (re2_object *)zend_object_store_get_object(pattern TSRMLS_CC);
+		re2_object *obj = (re2_object *)Z_OBJ_P(pattern);
 		*re = obj->re;
 	} else {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Pattern must be a string or an RE2 object");
@@ -844,7 +844,7 @@ static inline int _create_re2_options_object(zval *options TSRMLS_DC)
 static char *re2_options_hash(zval *options TSRMLS_DC)
 {
 	char *hash;
-	re2_options_object *obj = (re2_options_object *)zend_object_store_get_object(options TSRMLS_CC);
+	re2_options_object *obj = (re2_options_object *)Z_OBJ_P(options);
 
 	spprintf(&hash, RE2_OPTIONS_HASH_LEN, "%c%c%x",
 		1 |
@@ -1209,7 +1209,7 @@ PHP_METHOD(RE2, __construct)
 
 	if (!cache_hit) {
 		pattern_str = std::string(pattern, pattern_len);
-		re2_options_object *options_obj = (re2_options_object *)zend_object_store_get_object(options TSRMLS_CC);
+		re2_options_object *options_obj = (re2_options_object *)Z_OBJ_P(options);
 		re2_obj = new RE2(pattern_str, *options_obj->options);
 	}
 
@@ -1225,7 +1225,7 @@ PHP_METHOD(RE2, __construct)
 		RETURN_NULL();
 	}
 
-	re2_object *obj = (re2_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	re2_object *obj = (re2_object *)Z_OBJ_P(getThis());
 	obj->cached = cache_hit || cache_save;
 
 	if (cache_save) {
@@ -1245,10 +1245,10 @@ PHP_METHOD(RE2, __construct)
 PHP_METHOD(RE2, getPattern)
 {
 	std::string pattern;
-	re2_object *obj = (re2_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	re2_object *obj = (re2_object *)Z_OBJ_P(getThis());
 
 	pattern = obj->re->pattern();
-	RETURN_STRINGL((char *)pattern.c_str(), pattern.length(), 1);
+	RETURN_STRINGL((char *)pattern.c_str(), pattern.length());
 }
 /*	}}} */
 
@@ -1269,7 +1269,7 @@ PHP_METHOD(RE2, getOptions)
 PHP_METHOD(Re2Options, __construct)
 {
 	RE2::Options *options_obj = new RE2::Options();
-	re2_options_object *obj = (re2_options_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	re2_options_object *obj = (re2_options_object *)Z_OBJ_P(getThis());
 	obj->options = options_obj;
 }
 /*	}}} */
@@ -1280,7 +1280,7 @@ PHP_METHOD(Re2Options, getEncoding)
 {
 	char *encoding;
 
-	re2_options_object *obj = (re2_options_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	re2_options_object *obj = (re2_options_object *)Z_OBJ_P(getThis());
 	encoding = (char *)(obj->options->encoding() == RE2::Options::EncodingUTF8 ? "utf8" : "latin1");
 	RETURN_STRING(encoding, 1);
 }
@@ -1297,7 +1297,7 @@ PHP_METHOD(Re2Options, setEncoding)
 		RETURN_FALSE;
 	}
 
-	re2_options_object *obj = (re2_options_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	re2_options_object *obj = (re2_options_object *)Z_OBJ_P(getThis());
 	obj->options->set_encoding(encoding_len == 4 ? RE2::Options::EncodingUTF8 : RE2::Options::EncodingLatin1);
 }
 /* }}} */
@@ -1306,7 +1306,7 @@ PHP_METHOD(Re2Options, setEncoding)
 	Returns the (approximate) maximum amount of memory this RE2 should use, in bytes. */
 PHP_METHOD(Re2Options, getMaxMem)
 {
-	re2_options_object *obj = (re2_options_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	re2_options_object *obj = (re2_options_object *)Z_OBJ_P(getThis());
 	RETURN_LONG(obj->options->max_mem());
 }
 /*	}}} */
@@ -1321,7 +1321,7 @@ PHP_METHOD(Re2Options, setMaxMem)
 		RETURN_FALSE;
 	}
 
-	re2_options_object *obj = (re2_options_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	re2_options_object *obj = (re2_options_object *)Z_OBJ_P(getThis());
 	obj->options->set_max_mem(max_mem);
 }
 /*	}}} */
@@ -1329,7 +1329,7 @@ PHP_METHOD(Re2Options, setMaxMem)
 #define RE2_OPTION_BOOL_GETTER(name, re2name) \
 	PHP_METHOD(Re2Options, get##name) \
 	{ \
-		re2_options_object *obj = (re2_options_object *)zend_object_store_get_object(getThis() TSRMLS_CC); \
+		re2_options_object *obj = (re2_options_object *)Z_OBJ_P(getThis()); \
 		RETURN_BOOL(obj->options->re2name()); \
 	}
 
@@ -1340,7 +1340,7 @@ PHP_METHOD(Re2Options, setMaxMem)
 		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &value) == FAILURE) { \
 			RETURN_FALSE; \
 		} \
-		re2_options_object *obj = (re2_options_object *)zend_object_store_get_object(getThis() TSRMLS_CC); \
+		re2_options_object *obj = (re2_options_object *)Z_OBJ_P(getThis()); \
 		obj->options->set_##re2name(value); \
 	}
 
@@ -1456,9 +1456,9 @@ PHP_METHOD(Re2Set, __construct)
 
 	anchor = _php_re2_get_anchor_from_flags(flags);
 
-	re2_options_object *options_obj = (re2_options_object *)zend_object_store_get_object(options TSRMLS_CC);
+	re2_options_object *options_obj = (re2_options_object *)Z_OBJ_P(options);
 	RE2::Set *s = new RE2::Set(*options_obj->options, anchor);
-	re2_set_object *obj = (re2_set_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	re2_set_object *obj = (re2_set_object *)Z_OBJ_P(getThis());
 	obj->re2_set = s;
 
 	zval_add_ref(&options);
@@ -1479,7 +1479,7 @@ PHP_METHOD(Re2Set, add)
 		RETURN_FALSE;
 	}
 
-	re2_set_object *obj = (re2_set_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	re2_set_object *obj = (re2_set_object *)Z_OBJ_P(getThis());
 	ret = obj->re2_set->Add(pattern, &error_str);
 
 	if (ret == -1) {
@@ -1506,7 +1506,7 @@ PHP_METHOD(Re2Set, compile)
 		RETURN_FALSE;
 	}
 
-	re2_set_object *obj = (re2_set_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	re2_set_object *obj = (re2_set_object *)Z_OBJ_P(getThis());
 	ret = obj->re2_set->Compile();
 
 	if (ret) {
@@ -1545,7 +1545,7 @@ PHP_METHOD(Re2Set, match)
 	array_init(matching_indexs_out);
 	std::vector<int> v;
 
-	re2_set_object *obj = (re2_set_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	re2_set_object *obj = (re2_set_object *)Z_OBJ_P(getThis());
 	bool found = obj->re2_set->Match(subject, &v);
 
 	if(v.size()) {
