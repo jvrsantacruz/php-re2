@@ -785,12 +785,12 @@ static void _php_re2_replace_subjects(zval **patterns, zval *subjects, zval *ret
 
 				total_count += count;
 				Z_ADDREF_P(subject_return);
-				switch (zend_hash_get_current_key(Z_ARRVAL_P(subjects), &string_key, &num_key, 0)) {
+				switch (zend_hash_get_current_key(Z_ARRVAL_P(subjects), &string_key, &num_key)) {
 					case HASH_KEY_IS_STRING:
 						add_assoc_zval_ex(return_value, (char *)string_key, strlen(string_key) + 1, subject_return);
 						break;
 					case HASH_KEY_IS_LONG:
-						zend_hash_index_update(Z_ARRVAL_P(return_value), num_key, &subject_return, sizeof(zval *), NULL);
+						zend_hash_index_update(Z_ARRVAL_P(return_value), num_key, &subject_return);
 						break;
 				}
 			}
@@ -1096,12 +1096,12 @@ PHP_FUNCTION(re2_grep)
 		if (did_match ^ invert) {
 			Z_ADDREF_PP(entry);
 
-			switch (zend_hash_get_current_key(Z_ARRVAL_P(input), &string_key, &num_key, 0)) {
+			switch (zend_hash_get_current_key(Z_ARRVAL_P(input), &string_key, &num_key)) {
 				case HASH_KEY_IS_STRING:
 					zend_hash_update(Z_ARRVAL_P(return_value), string_key, entry);
 					break;
 				case HASH_KEY_IS_LONG:
-					zend_hash_index_update(Z_ARRVAL_P(return_value), num_key, entry, sizeof(zval *), NULL);
+					zend_hash_index_update(Z_ARRVAL_P(return_value), num_key, entry);
 					break;
 			}
 		}
