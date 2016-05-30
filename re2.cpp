@@ -209,45 +209,37 @@ void re2_free_storage(void *object TSRMLS_DC)
 	}
 }
 
-zend_object_value re2_object_new_ex(zend_class_entry *type, re2_object **ptr TSRMLS_DC)
+zend_object * re2_object_new_ex(zend_class_entry *type, re2_object **ptr TSRMLS_DC)
 {
-	zval *tmp;
-	zend_object_value retval;
-	re2_object *obj;
-
-	obj = (re2_object *)emalloc(sizeof(re2_object));
-	memset(obj, 0, sizeof(re2_object));
+	re2_object *obj = (re2_object *)ecalloc(1, sizeof(re2_object) + zend_object_properties_size(type));
 
 	if (ptr) {
 		*ptr = obj;
 	}
 
 	zend_object_std_init(&obj->std, type TSRMLS_CC);
-#if ZEND_MODULE_API_NO >= 20100409
 	object_properties_init(&obj->std, type);
-#else
-	zend_hash_copy(obj->std.properties, &type->default_properties, (copy_ctor_func_t)zval_add_ref, (void *)&tmp, sizeof(zval *));
-#endif
 
-	retval.handle = zend_objects_store_put(obj, NULL, re2_free_storage, NULL TSRMLS_CC);
-	retval.handlers = &re2_object_handlers;
-	return retval;
+	re2_object_handlers.offset = XtOffsetOf(re2_set_object, std);
+	re2_object_handlers.free_obj = (zend_object_free_obj_t) re2_free_storage;
+	obj->std.handlers = &re2_object_handlers;
+
+	return &obj->std;
 }
 
-zend_object_value re2_object_new(zend_class_entry *type TSRMLS_DC)
+zend_object * re2_object_new(zend_class_entry *type TSRMLS_DC)
 {
 	return re2_object_new_ex(type, NULL TSRMLS_CC);
 }
 
-zend_object_value re2_object_clone(zval *this_ptr TSRMLS_DC)
+zend_object * re2_object_clone(zval *this_ptr TSRMLS_DC)
 {
 	re2_options_object *options_obj = NULL;
-	zval *options = NULL;
 	re2_object *new_obj = NULL;
-	re2_object *old_obj = (re2_object *)zend_object_store_get_object(this_ptr TSRMLS_CC);
-	zend_object_value retval = re2_object_new_ex(old_obj->std.ce, &new_obj TSRMLS_CC);
+	re2_object *old_obj = (re2_object *)Z_OBJ_P(this_ptr);
+	zend_object * retval = re2_object_new_ex(old_obj->std.ce, &new_obj TSRMLS_CC);
 
-	zend_objects_clone_members(&new_obj->std, retval, &old_obj->std, Z_OBJ_HANDLE_P(this_ptr) TSRMLS_CC);
+	zend_objects_clone_members(&new_obj->std, &old_obj->std);
 
 	new_obj->re = new RE2(old_obj->re->pattern());
 	new_obj->cached = old_obj->cached;
@@ -268,32 +260,27 @@ void re2_options_free_storage(void *object TSRMLS_DC)
 	delete obj->options;
 }
 
-zend_object_value re2_options_object_new_ex(zend_class_entry *type, re2_options_object **ptr TSRMLS_DC)
+zend_object * re2_options_object_new_ex(zend_class_entry *type, re2_options_object **ptr TSRMLS_DC)
 {
-	zval *tmp;
-	zend_object_value retval;
+	zend_object * retval;
 
-	re2_options_object *obj = (re2_options_object *)emalloc(sizeof(re2_options_object));
-	memset(obj, 0, sizeof(re2_options_object));
-	obj->std.ce = type;
+	re2_options_object *obj = (re2_options_object * ) ecalloc(1, sizeof(re2_options_object) + zend_object_properties_size(type));
 
 	if (ptr) {
 		*ptr = obj;
 	}
 
 	zend_object_std_init(&obj->std, type TSRMLS_CC);
-#if ZEND_MODULE_API_NO >= 20100409
 	object_properties_init(&obj->std, type);
-#else
-	zend_hash_copy(obj->std.properties, &type->default_properties, (copy_ctor_func_t)zval_add_ref, (void *)&tmp, sizeof(zval *));
-#endif
 
-	retval.handle = zend_objects_store_put(obj, NULL, re2_options_free_storage, NULL TSRMLS_CC);
-	retval.handlers = &re2_options_object_handlers;
-	return retval;
+	re2_options_object_handlers.offset = XtOffsetOf(re2_options_object, std);
+	re2_options_object_handlers.free_obj = (zend_object_free_obj_t) re2_options_free_storage;
+	obj->std.handlers = &re2_options_object_handlers;
+
+	return &obj->std;
 }
 
-zend_object_value re2_options_object_new(zend_class_entry *type TSRMLS_DC)
+zend_object * re2_options_object_new(zend_class_entry *type TSRMLS_DC)
 {
 	return re2_options_object_new_ex(type, NULL TSRMLS_CC);
 }
@@ -330,32 +317,25 @@ void re2_set_free_storage(void *object TSRMLS_DC)
 	delete obj->re2_set;
 }
 
-zend_object_value re2_set_object_new_ex(zend_class_entry *type, re2_set_object **ptr TSRMLS_DC)
+zend_object * re2_set_object_new_ex(zend_class_entry *type, re2_set_object **ptr TSRMLS_DC)
 {
-	zval *tmp, *hasPattern, *isCompiled;
-	zend_object_value retval;
-
-	re2_set_object *obj = (re2_set_object *)emalloc(sizeof(re2_set_object));
-	memset(obj, 0, sizeof(re2_set_object));
-	obj->std.ce = type;
+	re2_set_object *obj = (re2_set_object *) ecalloc(1, sizeof(re2_set_object) + zend_object_properties_size(type));
 
 	if (ptr) {
 		*ptr = obj;
 	}
 
 	zend_object_std_init(&obj->std, type TSRMLS_CC);
-#if ZEND_MODULE_API_NO >= 20100409
 	object_properties_init(&obj->std, type);
-#else
-	zend_hash_copy(obj->std.properties, &type->default_properties, (copy_ctor_func_t)zval_add_ref, (void *)&tmp, sizeof(zval *));
-#endif
 
-	retval.handle = zend_objects_store_put(obj, NULL, re2_set_free_storage, NULL TSRMLS_CC);
-	retval.handlers = &re2_set_object_handlers;
-	return retval;
+	re2_set_object_handlers.offset = XtOffsetOf(re2_set_object, std);
+	re2_set_object_handlers.free_obj = (zend_object_free_obj_t) re2_set_free_storage;
+	obj->std.handlers = &re2_set_object_handlers;
+
+	return &obj->std;
 }
 
-zend_object_value re2_set_object_new(zend_class_entry *type TSRMLS_DC)
+zend_object * re2_set_object_new(zend_class_entry *type TSRMLS_DC)
 {
 	return re2_set_object_new_ex(type, NULL TSRMLS_CC);
 }
